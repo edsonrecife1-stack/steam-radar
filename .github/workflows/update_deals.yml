@@ -1,0 +1,30 @@
+name: Atualizar Promocoes Steam
+
+on:
+  schedule:
+    # Roda todos os dias às 14:05 (Horário de Brasília)
+    - cron: '5 17 * * *'
+  workflow_dispatch: # Permite que você clique em um botão para testar quando quiser
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar código do repositório
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Coletar novas promoções
+        run: node fetch_deals.js
+
+      - name: Salvar alterações no repositório
+        run: |
+          git config --global user.name "Robo SteamRadar"
+          git config --global user.email "bot@steamradar.local"
+          git add deals.json
+          git commit -m "Atualização diária de ofertas [skip ci]" || exit 0
+          git push
